@@ -1,22 +1,34 @@
-import { Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { TaskService } from './task.service';
+import { CreateTaskDto } from '../dto/create-task.dto';
 
-@Controller('api/task')
+@Controller('/api/task')
 export class TaskController {
   constructor(public readonly taskSvc: TaskService) {}
 
+  //! https:localhost:3000/api/task
   @Get()
   public getAllTasks(): string {
     return this.taskSvc.getAllTasks();
   }
 
+  //! https:localhost:3000/api/task/1
   @Get(':id')
-  public getTaskById(@Param() params: any, id: string): string {
+  public getTaskById(@Param('id') id: string): string {
     return this.taskSvc.getTaskById(id);
   }
 
   @Post()
-  public insertTask(task: any): any {
+  public insertTask(@Body() task: CreateTaskDto): any {
+    console.error('insert', task);
     return this.taskSvc.insertTask(task);
   }
 
