@@ -1,9 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { Task } from '../entities/task.entity';
+//import { Connection } from 'mysql2/promise';
 
 @Injectable()
 export class TaskService {
-  public getAllTasks(): string {
-    return 'Obteniendo las tareas';
+  constructor(@Inject('MYSQL_CONNECTION') private mysql: any) {}
+
+  public async getAllTasks(): Promise<Task[]> {
+    const query = `SELECT * FROM tasks ORDER BY name ASC`;
+
+    const [results] = await this.mysql.query(query);
+
+    return results as Task[];
   }
 
   public getTaskById(id: string): string {
