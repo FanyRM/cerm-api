@@ -1,11 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Task } from '../entities/task.entity';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
 //import { Connection } from 'mysql2/promise';
 
 @Injectable()
 export class TaskService {
   constructor(@Inject('MYSQL_CONNECTION') private mysql: any) {}
 
+  //Get all tasks
   public async getAllTasks(): Promise<Task[]> {
     const query = `SELECT * FROM tasks ORDER BY name ASC`;
 
@@ -14,19 +17,57 @@ export class TaskService {
     return results as Task[];
   }
 
-  public getTaskById(id: string): string {
-    return `Obteniendo la tarea con ID: ${id}`;
+  //Get task by ID
+  public async getTaskById(id: number): Promise<Task> {
+    const query = `SELECT * FROM tasks WHERE id = ${id}`;
+
+    const [results] = await this.mysql.query(query);
+
+    console.log(results);
+
+    return results[0] as Task;
   }
 
-  public insertTask(task: any): any {
-    return task;
+  //Insert a new task
+  public async insertTask(task: CreateTaskDto): Promise<Task> {
+    const sql = `INSERT INTO tasks (name, description, priority, user_id) VALUES ('${task.name}', '${task.description}', ${task.priority}, ${task.user_id})`;
+
+    const [results] = await this.mysql.query(sql);
+
+    const insertedId = results.insertId;
+
+    return await this.getTaskById(insertedId);
   }
 
-  public updateTask(task: any): any {
-    return task;
+  //Update a task
+  public async updateTask(
+    id: number,
+    taskUpdate: UpdateTaskDto,
+  ): Promise<Task> {
+    const task = await this.getTaskById(id);
+    task.name = taskUpdate.name ?? task.name;
+    task.description = taskUpdate.description ?? task.description;
+    task.priority =
+      taskUpdate.priority !== undefined ? taskUpdate.priority : task.priority;
+
+    const sql = `
+    UPDATE tasks 
+    SET name = '${task.name}', 
+    description = '${task.description}', 
+    priority = ${task.priority} 
+    WHERE id = ${id}`;
+
+    await this.mysql.query(sql);
+
+    return await this.getTaskById(id);
   }
 
-  public deleteTask(id: string): string {
-    return `Eliminando la tarea con ID: ${id}`;
+  //Delete a task
+  public async deleteTask(id: number): Promise<boolean> {
+    const sql = `DELETE FROM tasks WHERE id = ${id}`;
+
+    const [results] = await this.mysql.query(sql);
+
+    return results.affectedRows > 0;
   }
 }
