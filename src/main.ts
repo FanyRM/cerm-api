@@ -38,3 +38,6 @@ bootstrap();
 
 //? SWAGGER
 //!npm i @nestjs/swagger
+
+//?
+//!npm install prisma --save-dev
