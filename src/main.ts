@@ -41,3 +41,8 @@ bootstrap();
 
 //?
 //!npm install prisma --save-dev
+
+//? BCRYPT
+//!npm i bcrypt
+//!npm i -D @types/bcrypt
+//!nest g service common/services/util
