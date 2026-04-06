@@ -21,6 +21,7 @@ model User {
   hash String? @db.LongText
   created_at DateTime@default(now())
   task Task[] //un usuario puede tener varias tareas
+  logs Logs[] //un usuario puede tener varios logs
 }
 
 model Task {
@@ -32,3 +33,14 @@ model Task {
   user_id Int
   user User @relation(fields: [user_id], references: [id]) //se necesita declarar la relacion que tendra si sera de 1 a muchos o muchos a muchos
 }
+
+model Logs {
+  id Int @default(autoincrement()) @id
+  status_code Int
+  timestamp DateTime @default(now())
+  path String @db.MediumText()
+  error String @db.MediumText()
+  error_code String @db.MediumText()
+  session_id Int?
+  user User? @relation(fields: [session_id], references: [id])
+} 

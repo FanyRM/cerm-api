@@ -14,6 +14,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { UtilService } from 'src/common/services/util.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AppException } from 'src/common/exceptions/app.exception';
 
 @Controller('api/auth')
 export class AuthController {
@@ -77,11 +78,12 @@ export class AuthController {
     // Obtener el usuario en sesion
     const sessionUser = request['user'];
     const user = await this.authSvc.getUserById(sessionUser.id);
-    if (!user || !user.hash) throw new ForbiddenException('Acceso Denegado');
+    if (!user || !user.hash)
+      throw new AppException('Token invalido', HttpStatus.FORBIDDEN, '2');
 
     //Comparar el token recibido con el token guardado
     if (sessionUser.hash != user.hash)
-      throw new ForbiddenException('Token invalido');
+      throw new AppException('Token invalido', HttpStatus.FORBIDDEN, '2');
 
     const { password, username, ...payload } = user;
     const access_token = await this.utilSvc.generateJWT(payload, '1h');
