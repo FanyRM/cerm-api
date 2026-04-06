@@ -1,9 +1,6 @@
 import {
-  Inject,
   Injectable,
   BadRequestException,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
@@ -14,7 +11,6 @@ import { UtilService } from 'src/common/services/util.service';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('MYSQL_CONNECTION') private mysql: any,
     private prisma: PrismaService,
     private util: UtilService,
   ) {}
@@ -61,7 +57,7 @@ export class UserService {
       );
     } */
 
-    const encryptedPassword = await this.util.hashPassword(user.password);
+    const encryptedPassword = await this.util.hash(user.password);
     user.password = encryptedPassword;
     const newUser = await this.prisma.user.create({ data: user });
     return newUser;

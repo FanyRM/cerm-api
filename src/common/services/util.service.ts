@@ -6,15 +6,15 @@ import * as bcrypt from 'bcrypt';
 export class UtilService {
   constructor(private readonly jwtSvc: JwtService) {}
 
-  public async hashPassword(password: string) {
+  public async hash(password: string) {
     return await bcrypt.hash(password, 10);
   }
 
   public async checkPassword(password: string, encryptedPassword: string) {
-    return await bcrypt.compareSync(password, encryptedPassword);
+    return await bcrypt.compare(password, encryptedPassword);
   }
 
-  public async generateJWT(payload: any, expiresIn: any = '60s') {
+  public async generateJWT(payload: any, expiresIn: any = '1h') {
     return await this.jwtSvc.signAsync(payload, {
       expiresIn: expiresIn,
     });

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Task } from '../entities/task.entity';
 import { CreateTaskDto } from '../dto/create-task.dto';
 import { UpdateTaskDto } from '../dto/update-task.dto';
@@ -7,10 +7,7 @@ import { PrismaService } from 'src/common/services/prisma.service';
 
 @Injectable()
 export class TaskService {
-  constructor(
-    @Inject('MYSQL_CONNECTION') private mysql: any,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   //Get all tasks
   public async getAllTasks(): Promise<Task[]> {

@@ -1,34 +1,27 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/services/prisma.service';
-import { UtilService } from 'src/common/services/util.service';
+import { User } from 'src/modules/user/entities/user.entity';
 
-@Injectable()
+@Injectable() //los servicios se inyectan en un constructor
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private util: UtilService,
-    private jwt: JwtService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async login(username: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { username } });
-    if (!user || !(await this.util.checkPassword(password, user.password))) {
-      throw new UnauthorizedException('Credenciales inválidas');
-    }
-
-    const payload = { sub: user.id, username: user.username };
-    const accessToken = this.jwt.sign(payload);
-    const refreshToken = this.jwt.sign(payload, { expiresIn: '7d' });
-
-    await this.prisma.refreshToken.create({
-      data: {
-        token: refreshToken,
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
+  public async getUserByUsername(username: string): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: { username },
     });
+  }
 
-    return { accessToken, refreshToken };
+  public async getUserById(id: number): Promise<User | null> {
+    return await this.prisma.user.findFirst({
+      where: { id },
+    });
+  }
+
+  public async updateHash(user_id: number, hash: string | null): Promise<User> {
+    return await this.prisma.user.update({
+      where: { id: user_id },
+      data: { hash },
+    });
   }
 }

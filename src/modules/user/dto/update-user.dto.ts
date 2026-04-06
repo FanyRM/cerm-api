@@ -1,37 +1,23 @@
-import {
-  IsString,
-  IsNotEmpty,
-  MaxLength,
-  MinLength,
-  IsArray,
-  IsOptional,
-} from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  @MinLength(3)
+  @IsString({ message: 'Debe ser una cadena' })
+  @MinLength(3, { message: 'Debe tener al menos 3 caracteres' })
   name?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(300)
-  @MinLength(3)
+  @IsString({ message: 'Debe ser una cadena' })
+  @MinLength(3, { message: 'Debe tener al menos 3 caracteres' })
   lastName?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  @MinLength(3)
+  @IsString({ message: 'Debe ser una cadena' })
+  @MinLength(3, { message: 'Debe tener al menos 3 caracteres' })
   username?: string;
 
   @IsOptional()
-  @IsString()
-  @MinLength(6)
+  @IsString({ message: 'Debe ser una cadena' })
+  @MinLength(3, { message: 'Debe tener al menos 3 caracteres' })
   password?: string;
-
-  /* @IsOptional()
-  @IsArray()
-  tasks?: number[]; */
 }

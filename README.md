@@ -98,6 +98,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 Para actualizar la base de datos se usa
 npx prisma migrate dev --name init
 npx prisma migrate dev --name [name version]
+npx prisma generate
 
 ## License
 

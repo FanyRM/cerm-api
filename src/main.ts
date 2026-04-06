@@ -39,7 +39,10 @@ bootstrap();
 //? SWAGGER
 //!npm i @nestjs/swagger
 
-//?
+//? PRISMA
+//!npx prisma migrate dev --name init
+//!npx prisma generate
+
 //!npm install prisma --save-dev
 
 //? BCRYPT
