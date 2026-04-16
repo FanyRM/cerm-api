@@ -1,12 +1,10 @@
 import {
   CanActivate,
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { Observable } from 'rxjs';
 import { UtilService } from '../services/util.service';
 
 @Injectable()
@@ -17,19 +15,19 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest() as Request;
     const token = this.extractTokenFromHeader(request);
 
-    if (!token) throw new UnauthorizedException();
+    if (!token) throw new UnauthorizedException('Token no proporcionado');
 
     try {
       const payload = await this.utilSvc.getPayload(token);
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token inválido o expirado');
     }
     return true;
   }
 
   private extractTokenFromHeader(request: Request): string | null {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type == 'Bearer' ? token : null;
+    return type === 'Bearer' ? token : null;
   }
 }

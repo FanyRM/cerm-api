@@ -4,4 +4,5 @@ export class Task {
   description: string;
   priority: boolean;
   user_id: number;
+  createdAt: Date;
 }

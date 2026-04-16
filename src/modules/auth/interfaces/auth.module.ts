@@ -4,16 +4,17 @@ import { AuthService } from './auth.service';
 import { PrismaService } from 'src/common/services/prisma.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UtilService } from 'src/common/services/util.service';
+import { config } from 'src/config/config';
 
 @Module({
   imports: [
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET,
+      secret: config.jwtSecret,
       signOptions: { expiresIn: '60s' },
     }),
   ],
-  controllers: [AuthController], //puede tener mas de 1 controlador
-  providers: [AuthService, PrismaService, UtilService], //el proveedor es el servicio
+  controllers: [AuthController],
+  providers: [AuthService, PrismaService, UtilService],
 })
 export class AuthModule {}

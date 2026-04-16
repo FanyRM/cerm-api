@@ -1,6 +1,5 @@
 import {
   IsBoolean,
-  IsInt,
   IsOptional,
   IsString,
   MaxLength,
@@ -8,7 +7,6 @@ import {
 } from 'class-validator';
 
 export class UpdateTaskDto {
-  //id: number;
   @IsOptional()
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   @MinLength(3, { message: 'El nombre debe tener al menos 3 caracteres' })
@@ -23,8 +21,4 @@ export class UpdateTaskDto {
   @IsOptional()
   @IsBoolean({ message: 'La prioridad debe ser un valor booleano' })
   priority?: boolean;
-
-  @IsOptional()
-  @IsInt({ message: 'El ID del usuario debe ser un número entero' })
-  user_id?: number;
 }

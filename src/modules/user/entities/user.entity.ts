@@ -6,4 +6,5 @@ export class User {
   hash?: string | null | undefined;
   password?: string;
   createdAt!: Date;
+  roles?: { role: { id: number; name: string } }[];
 }

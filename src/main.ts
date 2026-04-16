@@ -1,23 +1,28 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { config as appConfig } from './config/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  //Uso de pipes de forma global
+  app.enableCors({
+    origin: appConfig.corsOrigin,
+    credentials: true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Elimina propiedades no definidas en el DTO
+      whitelist: true,
     }),
   );
 
-  //Uso de filtros de forma global
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  //Configuracion de SWAGGER
+  //Configuración de Swagger
   const config = new DocumentBuilder()
     .setTitle('API con vulnerabilidades')
     .setDescription('Documentación de la API para pruebas de seguridad')
@@ -28,28 +33,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(appConfig.port);
 }
 bootstrap();
 
-//? MYSQL
-//!npm i mysql2
-//!npm i @types/mysql2 -D
-
-//? POSTGRESQL
-//!npm i pg
-//!npm i @types/pg -D
-
-//? SWAGGER
-//!npm i @nestjs/swagger
-
-//? PRISMA
-//!npx prisma migrate dev --name init
-//!npx prisma generate
-
-//!npm install prisma --save-dev
-
-//? BCRYPT
-//!npm i bcrypt
-//!npm i -D @types/bcrypt
-//!nest g service common/services/util

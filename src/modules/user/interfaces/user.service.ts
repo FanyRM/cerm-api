@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-} from '@nestjs/common';
-import { User } from '../entities/user.entity';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PrismaService } from 'src/common/services/prisma.service';
@@ -15,8 +11,8 @@ export class UserService {
     private util: UtilService,
   ) {}
 
-  public async getAllUsers(): Promise<User[]> {
-    const users = await this.prisma.user.findMany({
+  public async getAllUsers() {
+    return await this.prisma.user.findMany({
       orderBy: { name: 'asc' },
       select: {
         id: true,
@@ -24,14 +20,13 @@ export class UserService {
         lastName: true,
         username: true,
         createdAt: true,
-        tasks: true,
+        roles: { select: { role: { select: { id: true, name: true } } } },
       },
     });
-    return users;
   }
 
-  public async getUserById(id: number): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
+  public async getUserById(id: number) {
+    return await this.prisma.user.findUnique({
       where: { id },
       select: {
         id: true,
@@ -39,42 +34,66 @@ export class UserService {
         lastName: true,
         username: true,
         createdAt: true,
-        tasks: true,
+        roles: { select: { role: { select: { id: true, name: true } } } },
       },
     });
-    return user;
   }
 
-  public async insertUser(user: CreateUserDto): Promise<User> {
-    /* const existUser = await this.prisma.user.getUserByUserName({
-      where: { username: user.username },
+  public async insertUser(dto: CreateUserDto) {
+    const exists = await this.prisma.user.findFirst({
+      where: { username: dto.username },
     });
+    if (exists) throw new BadRequestException('El nombre de usuario ya existe');
 
-    if (existUser) {
-      throw new HttpException(
-        'El nombre de usuario ya exist',
-        HttpStatus.BAD_REQUEST,
-      );
-    } */
+    const encryptedPassword = await this.util.hash(dto.password);
 
-    const encryptedPassword = await this.util.hash(user.password);
-    user.password = encryptedPassword;
-    const newUser = await this.prisma.user.create({ data: user });
-    return newUser;
+    const roleName = dto.roleName ?? 'USER';
+    const role = await this.prisma.role.findUnique({ where: { name: roleName } });
+    if (!role) throw new BadRequestException(`El rol '${roleName}' no existe`);
+
+    return await this.prisma.user.create({
+      data: {
+        name: dto.name,
+        lastName: dto.lastName,
+        username: dto.username,
+        password: encryptedPassword,
+        roles: { create: { roleId: role.id } },
+      },
+      select: {
+        id: true,
+        name: true,
+        lastName: true,
+        username: true,
+        createdAt: true,
+        roles: { select: { role: { select: { id: true, name: true } } } },
+      },
+    });
   }
 
-  public async updateUser(
-    id: number,
-    userUpdate: UpdateUserDto,
-  ): Promise<User> {
-    const user = await this.prisma.user.update({
+  public async updateUser(id: number, userUpdate: UpdateUserDto) {
+    if (userUpdate.password) {
+      userUpdate.password = await this.util.hash(userUpdate.password);
+    }
+    return await this.prisma.user.update({
       where: { id },
-      data: userUpdate,
+      data: {
+        name: userUpdate.name,
+        lastName: userUpdate.lastName,
+        username: userUpdate.username,
+        password: userUpdate.password,
+      },
+      select: {
+        id: true,
+        name: true,
+        lastName: true,
+        username: true,
+        createdAt: true,
+        roles: { select: { role: { select: { id: true, name: true } } } },
+      },
     });
-    return user;
   }
 
-  public async deleteUser(id: number): Promise<User> {
+  public async deleteUser(id: number) {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: { tasks: true },
@@ -86,6 +105,7 @@ export class UserService {
       );
     }
 
+    await this.prisma.userRole.deleteMany({ where: { userId: id } });
     return await this.prisma.user.delete({ where: { id } });
   }
 }
